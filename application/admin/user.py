@@ -5,17 +5,15 @@
 # @File    : user.py.py
 # @Software: PyCharm
 from flask import session, render_template, request, redirect, url_for, \
-    flash
+    flash, current_app, g
 from application.core.baseview import BaseView
 from application.models.UserModel import UserModel
 from application.utils.common import md5
 
 
 class UserView(BaseView):
-    methods = ['GET', 'POST']
 
     def __init__(self, action):
-        super(UserView, self).__init__()
         self.action = action
 
     def dispatch_request(self):
@@ -29,16 +27,28 @@ class UserView(BaseView):
         :return:
         """
         self.page_title = u'登录'
+        data = {
+            "page_title": self.page_title,
+            "app": current_app
+        }
+
         if request.method == 'POST':
             username = request.form['username']
             password = md5(request.form['password'])
-            user = UserModel.query.filter(UserModel.name == username).first()
+            user = UserModel.query.filter(UserModel.username == username).first()
             if user is not None and user.password == password:
                 session['username'] = username
+                g.login_user = {"username": session['username']}
+                data["g"] = g
+                return redirect(url_for("bp_admin.dashboard"))
             else:
                 flash(u"用户名或密码错误")
+                return render_template('user/login.html', data=data)
         else:
-            return render_template('user/login.html', page_title=self.page_title)
+            if "username" in session:
+                return redirect(url_for("bp_admin.dashboard"))
+            else:
+                return render_template('user/login.html', data=data)
 
     def logout(self):
         """
@@ -50,3 +60,19 @@ class UserView(BaseView):
         if 'username' in session:
             del session['username']
         return redirect(url_for('bp_admin.login'))
+
+    @BaseView.checklogin
+    def list(self):
+        self.page_title = u'会员列表'
+        page = int(request.args.get('page', 1))
+        print page
+        data = {
+            "page_title": self.page_title,
+            "app": current_app,
+            "g": g
+        }
+
+        users = UserModel.query.paginate(page, per_page=10)
+        data["users"] = users if users else {}
+
+        return render_template('user/list.html', data=data)

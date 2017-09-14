@@ -6,8 +6,8 @@
 # @Software: PyCharm
 from flask import Flask
 from application.admin import bp_admin
-from application.core.database import init_db
-
+from application.core.database import db
+import sys
 
 def set_logger_handler(app):
     """
@@ -32,13 +32,17 @@ def create_app():
     创建web应用
     :return: app instance
     """
+    # 设置默认编码
+    reload(sys)
+    sys.setdefaultencoding('UTF-8')
+
     app = Flask(__name__.split('.')[0], instance_relative_config=True)
 
     app.config.from_pyfile('config.py')
 
     set_logger_handler(app)
 
-    init_db(app)
+    db.init_app(app)
 
     app.register_blueprint(bp_admin, url_prefix='/admin')
 

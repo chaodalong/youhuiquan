@@ -4,21 +4,29 @@
 # @Site    : 
 # @File    : user.py.py
 # @Software: PyCharm
-from sqlalchemy import Column, Integer, String
-from application.core.database import Base
+from sqlalchemy import Column, Integer, String, text
+from sqlalchemy.dialects.mysql import (
+    INTEGER, TINYINT, TIMESTAMP, VARCHAR, ENUM
+)
+from application.core.database import BaseModel
 
 
-class UserModel(Base):
+class UserModel(BaseModel):
     """
     用户模型类
     """
     __tablename__ = 'user'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(64))
-    password = Column(String(32), nullable=False)
+    id = Column(INTEGER(unsigned=True), primary_key=True, autoincrement=True)
+    username = Column(VARCHAR(64), nullable=False, server_default="")
+    password = Column(VARCHAR(32), nullable=False, server_default="")
+    roles_id = Column(INTEGER(unsigned=True), nullable=False, server_default=text("2"))
 
-    def __init__(self, id=None, name=None, password=None):
-        self.id = id
-        self.name = name
-        self.password = password
+    created_at = Column(
+        TIMESTAMP, nullable=False,
+        server_default=text("CURRENT_TIMESTAMP")
+    )
+    updated_at = Column(
+        TIMESTAMP, nullable=False,
+        server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    )

@@ -1,0 +1,77 @@
+{% extends "common/base_page.html" %}
+
+{% block content %}
+<section class="content-header">
+    <h1>
+        {{ data.page_title }}
+    </h1>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title"></h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <div id="example2_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
+                        <div class="row">
+                            <div class="col-sm-6"></div>
+                            <div class="col-sm-6"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table id="example2" class="table table-bordered table-hover dataTable" role="grid"
+                                       aria-describedby="example2_info">
+                                    <thead>
+                                    <tr role="row">
+                                        <th>
+                                            ID
+                                        </th>
+                                        <th>
+                                            用户名
+                                        </th>
+                                        <th>
+                                            创建时间
+                                        </th>
+                                        <th>
+                                            修改时间
+                                        </th>
+                                        <th>
+                                            操作
+                                        </th>
+                                    </tr>
+                                    {% for user in data["users"].items %}
+                                        <tr>
+                                            <td>{{ user.id }}</td>
+                                            <td>{{ user.username }}</td>
+                                            <td>{{ user.created_at }}</td>
+                                            <td>{{ user.updated_at }}</td>
+                                            <td>
+                                                <button class="btn btn-danger btn-sm">删除</button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-7">
+                                {% import 'common/pagination.html' as pagination %}
+                                {{ pagination.render_page_data(data["users"], 'bp_admin.user_list') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+</section>
+{% endblock %}

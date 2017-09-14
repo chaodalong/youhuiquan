@@ -5,14 +5,25 @@
 # @File    : baseview.py
 # @Software: PyCharm
 from flask.views import View
-from flask import session, url_for, redirect
+from flask import session, url_for, redirect, g
+from functools import wraps
+
 
 class BaseView(View):
+    methods = ['GET', "POST"]
+
     page_title = ''
 
-    def __init__(self):
-        self._checklogin()
+    @classmethod
+    def checklogin(cls, func):
+        @wraps(func)
+        def wrapper(self):
+            # login check
+            if "username" not in session:
+                return redirect(url_for('bp_admin.login'))
+            else:
+                g.login_user = {"username": session['username']}
 
-    def _checklogin(self):
-        if 'username' not in session:
-            return redirect(url_for('bp_admin.login'))
+            # run func
+            return func(self)
+        return wrapper
